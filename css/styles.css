@@ -1,0 +1,94 @@
+:root {
+    --primary-cyan: #0ea5e9;
+    --primary-hover: #0284c7;
+    --glass-bg: rgba(15, 23, 42, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Fondo principal */
+.bg-image {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0ea5e9 100%);
+    background-attachment: fixed;
+    color: #e2e8f0;
+}
+
+/* Elementos Glassmorphism */
+.glass-panel, .glass-navbar, .glass-footer, .glass-modal {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+}
+
+.glass-panel {
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-modal {
+    border-radius: 16px;
+}
+
+/* Tablas */
+.glass-table {
+    color: #e2e8f0;
+    margin-bottom: 0;
+}
+
+.glass-table th {
+    background-color: rgba(14, 165, 233, 0.1);
+    color: #38bdf8;
+    border-bottom: 2px solid var(--primary-cyan);
+    font-weight: 600;
+}
+
+.glass-table td {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+}
+
+.glass-table tbody tr:hover td {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+/* Formularios */
+.glass-input {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+}
+
+.glass-input:focus {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-color: var(--primary-cyan);
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(14, 165, 233, 0.25);
+}
+
+.glass-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+/* Botones Personalizados */
+.btn-cyan {
+    background-color: var(--primary-cyan);
+    color: white;
+    border: none;
+}
+
+.btn-cyan:hover {
+    background-color: var(--primary-hover);
+    color: white;
+}
+
+.btn-outline-cyan {
+    color: var(--primary-cyan);
+    border-color: var(--primary-cyan);
+}
+
+.btn-outline-cyan:hover {
+    background-color: var(--primary-cyan);
+    color: white;
+}
