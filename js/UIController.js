@@ -44,7 +44,6 @@ export default class UIController {
             const respuesta = await this.api.getContactos();
             
             if (respuesta.ok && respuesta.data) {
-                // AQUÍ ESTÁ LA MAGIA: Agrupar los datos dispersos
                 const contactosAgrupados = this.agruparContactos(respuesta.data);
                 this.renderizarTabla(contactosAgrupados);
             } else {
@@ -56,32 +55,31 @@ export default class UIController {
         }
     }
 
-    // Nueva función para unificar las filas duplicadas
     agruparContactos(datosCrudos) {
         const mapa = new Map();
 
         datosCrudos.forEach(fila => {
             if (!mapa.has(fila.id_contacto)) {
-                // Si es la primera vez que vemos este ID, creamos la estructura base
+                // Ahora capturamos la fecha de nacimiento y el ID de categoría (si la BD los envía)
                 mapa.set(fila.id_contacto, {
                     id_contacto: fila.id_contacto,
                     nombre: fila.nombre,
                     apellido: fila.apellido,
-                    categoria: fila.nombre_categoria, // Usamos el nombre, ya que no viene el ID
+                    fecha_nacimiento: fila.fecha_nacimiento || '', 
+                    id_categoria: fila.id_categoria || '',
+                    categoria: fila.nombre_categoria,
                     telefono: '',
                     correo: '',
                     direccion: ''
                 });
             }
 
-            // Agregamos los datos de contacto específicos a la estructura
             const contactoObj = mapa.get(fila.id_contacto);
             if (fila.tipo_dato === 'Teléfono') contactoObj.telefono = fila.valor;
             if (fila.tipo_dato === 'Correo') contactoObj.correo = fila.valor;
             if (fila.tipo_dato === 'Dirección') contactoObj.direccion = fila.valor;
         });
 
-        // Convertimos el Map de nuevo a un Array normal
         return Array.from(mapa.values());
     }
 
@@ -95,11 +93,13 @@ export default class UIController {
         contactos.forEach(contacto => {
             const tr = document.createElement('tr');
             
-            // Ya no buscamos fecha_nacimiento porque la BD no lo envía
+            // Si la fecha está vacía, mostramos N/A en lugar de "No disponible"
+            const fechaMostrar = contacto.fecha_nacimiento ? contacto.fecha_nacimiento : '<span class="text-muted">N/A</span>';
+
             tr.innerHTML = `
                 <td><span class="badge bg-secondary">${contacto.id_contacto}</span></td>
                 <td class="fw-medium">${contacto.nombre} ${contacto.apellido}</td>
-                <td><span class="text-muted">No disponible</span></td>
+                <td>${fechaMostrar}</td>
                 <td><span class="badge bg-info text-dark">${contacto.categoria}</span></td>
                 <td>${contacto.telefono || '<span class="text-muted">N/A</span>'}</td>
                 <td>${contacto.correo || '<span class="text-muted">N/A</span>'}</td>
@@ -115,7 +115,6 @@ export default class UIController {
             this.tableBody.appendChild(tr);
         });
 
-        // Eventos Editar
         document.querySelectorAll('.btn-edit').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const datos = JSON.parse(e.currentTarget.getAttribute('data-contacto'));
@@ -123,7 +122,6 @@ export default class UIController {
             });
         });
 
-        // Eventos Eliminar
         document.querySelectorAll('.btn-delete').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 this.contactoIdAEliminar = e.currentTarget.getAttribute('data-id');
@@ -139,10 +137,6 @@ export default class UIController {
         document.getElementById('idContacto').value = '';
         this.modalTitle.innerHTML = '<i class="bi bi-person-plus me-2"></i>Nuevo Contacto';
         this.camposExtra.style.display = 'flex'; 
-        
-        // Habilitar campos de fecha e ID categoría para creación (aunque no los veamos al leer)
-        document.getElementById('fechaNacimiento').disabled = false;
-        document.getElementById('idCategoria').disabled = false;
     }
 
     abrirModalEditar(contacto) {
@@ -154,10 +148,9 @@ export default class UIController {
         document.getElementById('nombre').value = contacto.nombre;
         document.getElementById('apellido').value = contacto.apellido;
         
-        // Como la BD no nos devuelve la fecha ni el ID de la categoría al hacer GET,
-        // no podemos llenarlos en el modal. Los dejamos en blanco o deshabilitados.
-        document.getElementById('fechaNacimiento').value = ''; 
-        document.getElementById('idCategoria').value = ''; 
+        // Ahora sí intentamos llenar la fecha y la categoría
+        document.getElementById('fechaNacimiento').value = contacto.fecha_nacimiento; 
+        document.getElementById('idCategoria').value = contacto.id_categoria; 
         
         this.modalTitle.innerHTML = '<i class="bi bi-person-gear me-2"></i>Editar Contacto';
         this.camposExtra.style.display = 'none'; 
@@ -174,8 +167,8 @@ export default class UIController {
         const data = {
             nombre: document.getElementById('nombre').value,
             apellido: document.getElementById('apellido').value,
-            fecha_nacimiento: document.getElementById('fechaNacimiento').value || '2000-01-01', // Valor por defecto si falla
-            id_categoria: parseInt(document.getElementById('idCategoria').value) || 1 // Valor por defecto si falla
+            fecha_nacimiento: document.getElementById('fechaNacimiento').value,
+            id_categoria: parseInt(document.getElementById('idCategoria').value)
         };
 
         this.btnGuardar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Procesando...';
